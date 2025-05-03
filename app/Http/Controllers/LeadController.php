@@ -12,7 +12,23 @@ class LeadController extends Controller
      */
     public function index()
     {
-        return response()->json(Lead::all());
+        try {
+            // Attempt to fetch leads from the database
+            $leads = Lead::all();
+            return response()->json($leads, 200);
+        } catch (\Exception $e) {
+            // Log the error for debugging in Railway logs
+            Log::error('Lead index error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Return a detailed error response
+            return response()->json([
+                'error' => 'Failed to fetch leads',
+                'message' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 
     /**
